@@ -16,24 +16,34 @@ int main(int argc, char** argv){
   while ((a = getopt (argc, argv, "bc:u:n:")) != -1){
     switch(a){
       case 'c':
-          if(isInt(optarg)){
+        if(isInt(optarg)){
           numImages=atoi(optarg);
           printf("The number of images to process are: %i\n",numImages);
-
         }
         else{
-          printf("The input has a character not valid (only integer digits!)\n");
+          printf("The input -c has a character not valid (only integer digits!)\n");
           return 0;
         }
-
         break;
       case 'u':
-        umbralBin=atoi(optarg);
-        printf("UMBRAL to Bin is: %i\n",umbralBin);
+        if(isInt(optarg)){
+          umbralBin=atoi(optarg);
+          printf("UMBRAL to Bin is: %i\n",umbralBin);
+        }
+        else{
+          printf("The input -u has a character not valid (only integer digits!)\n");
+          return 0;
+        }
         break;
       case 'n':
-        umbralClas=atoi(optarg);
-        printf("UMBRAL to classify is:%i\n",umbralClas);
+        if(isInt(optarg)){
+          umbralClas=atoi(optarg);
+          printf("UMBRAL to classify is:%i\n",umbralClas);
+        }
+        else{
+          printf("The input -n has a character not valid (only integer digits!)\n");
+          return 0;
+        }
         break;
       case 'b':
         printf("Printing...\n");
