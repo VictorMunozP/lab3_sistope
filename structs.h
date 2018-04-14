@@ -1,9 +1,11 @@
 #ifndef structs
 #define structs
 
-struct nodito{
-  int numero;
+struct pixelito{
+  int r;
+  int g;
+  int b;
 };
-typedef struct nodito* nodo;
+typedef struct pixelito* pixel;
 
 #endif
