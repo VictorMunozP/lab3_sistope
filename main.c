@@ -31,7 +31,7 @@ int main(int argc, char** argv){
           printf("UMBRAL to Bin is: %i\n",umbralBin);
         }
         else{
-          printf("The input -u has a character not valid (only integer digits!)\n");
+          printf("Not valid input -u (only integer digits!)\n");
           return 0;
         }
         break;
@@ -41,7 +41,7 @@ int main(int argc, char** argv){
           printf("UMBRAL to classify is:%i\n",umbralClas);
         }
         else{
-          printf("The input -n has a character not valid (only integer digits!)\n");
+          printf("The input -n has a not valid character (only integer digits!)\n");
           return 0;
         }
         break;
