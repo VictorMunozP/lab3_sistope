@@ -11,8 +11,8 @@
 #include <string.h>
 
 int main(int argc, char** argv){
-  int a, numImages,umbralBin,umbralClas;
-  //char* tamano;
+  int a, numImages,umbralBin,umbralClas,file;
+
   while ((a = getopt (argc, argv, "bc:u:n:")) != -1){
     switch(a){
       case 'c':
@@ -61,7 +61,13 @@ int main(int argc, char** argv){
     }//fin del switch
   }//fin del while
 
+  file=open("ngc2023.bmp",O_RDONLY);
+  if(file<0){
+    printf("Can't open the file\n");
+  }
+  else{
 
+  }
 
   return 0;
 }
