@@ -71,11 +71,11 @@ int main(int argc, char** argv){
     //printf("Nombre de entrada:%s\n",nombreDef);
     unsigned char* imagen = LoadBMP(nombreEntrada, &bInfoHeader, &header);
 
-    Pixeles* pixeles = transformarArray(imagen, bInfoHeader);
+    //Pixeles* pixeles = transformarArray(imagen, bInfoHeader);
 
     char* nombreSalida=malloc(sizeof(char)*22);
     nombreSalida=setNameSalida(i);
-    guardarImagen(pixeles, bInfoHeader, header,nombreSalida);
+    guardarImagenMIA(imagen, bInfoHeader, header,nombreSalida);
     //printf("Nombre de salida: %s\n",salida);
 
   }

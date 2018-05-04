@@ -64,12 +64,12 @@ char* setNameSalida(int a){
   return nombreDef;
 }
 
-unsigned char *LoadBMP(char *filename, bmpInfoHeader *bInfoHeader, bmpFileHeader *header)
+unsigned char* LoadBMP(char* filename, bmpInfoHeader* bInfoHeader, bmpFileHeader* header)
 {
 
-  FILE *f;
+  FILE* f;
  						     /* cabecera */
-  unsigned char *imgdata;   /* datos de imagen */
+  unsigned char* imgdata;   /* datos de imagen */
   uint16_t type;        /* 2 bytes identificativos */
 
   f=fopen (filename, "r");
@@ -122,7 +122,7 @@ Pixeles* transformarArray(unsigned char* array, bmpInfoHeader bInfoHeader){
 		return NULL;
 	}
 	pixeles->ancho= ancho;
-	pixeles->largo = largo,
+	pixeles->largo = largo;
 	//Reservamos memoria para las filas de la matriz de pixeles
 	pixeles->matrizPixeles = malloc(sizeof(int**)*largo);
 	//Si es  nula, se aborta la creacion
@@ -252,6 +252,47 @@ void guardarImagen(Pixeles* pixeles, bmpInfoHeader bInfoHeader, bmpFileHeader he
 	fseek(imagen, header.offset, SEEK_SET);
 	//escribimos los datos de la imagen
 	fwrite(datos_imagen, bInfoHeader.imgsize,1, imagen);
+	//cerramos el archivo de salida
+	fclose(imagen);
+}
+
+//Funcion que guarda una matriz de pixeles en formato bmp
+void guardarImagenMIA(unsigned char* array, bmpInfoHeader bInfoHeader, bmpFileHeader header, char* filename){
+	//Recibimos el mismo header de informacion y de archivo de la imagen original
+	//debemos cambiar el size del header.
+	//---> size = tamaño total del archivo --> size of(header + bInfoHeader + datos de la imagen)
+	//y en bInfoHeader debemos cambiar imgsize, width y height.
+	//----_> imgsize = ancho*largo*3 (3bytes por pixel).
+	//int ancho = bInfoHeader->width;
+	//int largo = bInfoHeader->height;
+	//int image_size = bInfoHeader->imgsize;
+	/*modificamos primero la cabecera de info de la imagen
+	bInfoHeader.width = (uint32_t) ancho;
+	bInfoHeader.height = (uint32_t) largo;
+	bInfoHeader.imgsize = (uint32_t) image_size;
+	*/
+  //Luego modificamos el header del archivo
+	//header.size = (uint32_t) (sizeof(bInfoHeader) + sizeof(header) + sizeof(image_size));
+	//Abrimos el archivo de la nueva imagen
+	FILE* imagen = fopen(filename, "w");
+	if(imagen==NULL){
+		printf("Error de memoria en la creacion del archivo de imagen de salida.\n");
+		return;
+	}
+	//Escribimos el tipo de archivo (BM)
+	uint16_t type = 0x4D42;
+	fwrite(&type, sizeof(uint16_t), 1, imagen);
+	//Escribimos la cabecera del archivo completa
+	fwrite(&header, sizeof(bmpFileHeader),1,imagen);
+	//Escribimos la cabecera de info de la imagen completa
+	fwrite(&bInfoHeader, sizeof(bmpInfoHeader),1,imagen);
+	//obtenemos el array de datos de la imagen
+	//unsigned char* datos_imagen = transformarMatriz(pixeles);
+	//Escribimos el arreglo de datos de la imagen en el archivo
+	//Nos movemos a la parte dle archivo en donde deben ir los datos, segun el header del archivo
+	fseek(imagen, header.offset, SEEK_SET);
+	//escribimos los datos de la imagen
+	fwrite(array, bInfoHeader.imgsize,1, imagen);
 	//cerramos el archivo de salida
 	fclose(imagen);
 }
