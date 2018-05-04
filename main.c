@@ -9,9 +9,10 @@
 #include <unistd.h>
 #include <ctype.h>
 #include <string.h>
+#include <math.h>
 
 int main(int argc, char** argv){
-  int a, numImages,umbralBin,umbralClas,file;
+  int a, numImages,umbralBin,umbralClas;
 
   while ((a = getopt (argc, argv, "bc:u:n:")) != -1){
     switch(a){
@@ -61,13 +62,22 @@ int main(int argc, char** argv){
     }//fin del switch
   }//fin del while
 
-  file=open("ngc2023.bmp",O_RDONLY);
-  if(file<0){
-    printf("Can't open the file\n");
-  }
-  else{
+  bmpInfoHeader bInfoHeader;
+	bmpFileHeader header;
+
+  for(int i=1;i<numImages+1;i++){
+    char* nombreEntrada=malloc(sizeof(char)*22);
+    nombreEntrada=setNameImg(i);
+    //printf("Nombre de entrada:%s\n",nombreDef);
+    unsigned char* imagen = LoadBMP(nombreEntrada, &bInfoHeader, &header);
+
+    Pixeles* pixeles = transformarArray(imagen, bInfoHeader);
+
+    char* nombreSalida=malloc(sizeof(char)*22);
+    nombreSalida=setNameSalida(i);
+    guardarImagen(pixeles, bInfoHeader, header,nombreSalida);
+    //printf("Nombre de salida: %s\n",salida);
 
   }
-
   return 0;
 }
