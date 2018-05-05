@@ -81,6 +81,22 @@ char* setNameSalidaGS(int a){
   return nombreDef;
 }
 
+char* setNameSalidaBin(int a){
+  char* nombreEntrada=malloc(sizeof(char)*20);
+  strcpy(nombreEntrada,"salidaBin_");
+
+  char* buffer=malloc(sizeof(char)*12);
+  sprintf(buffer,"%d",a);
+
+  char* formato=".bmp";
+
+  char* nombreDef=malloc(sizeof(char)*22);
+  nombreDef=strcat(nombreEntrada,buffer);
+  //printf("nombre parcial: %s\n",nombreDef);
+  nombreDef=strcat(nombreDef,formato);
+  //printf("%s\n",nombreDef);
+  return nombreDef;
+}
 
 
 
@@ -312,7 +328,7 @@ void guardarImagenMIA(unsigned char* array, bmpInfoHeader bInfoHeader, bmpFileHe
 	//Abrimos el archivo de la nueva imagen
 	FILE* imagen = fopen(filename, "w");
 	if(imagen==NULL){
-		printf("Error de memoria en la creacion del archivo de imagen de salida.\n");
+		printf("Error de memoria en la creacion imagen de salida.\n");
 		return;
 	}
 	//Escribimos el tipo de archivo (BM)
@@ -333,9 +349,32 @@ void guardarImagenMIA(unsigned char* array, bmpInfoHeader bInfoHeader, bmpFileHe
 	fclose(imagen);
 }
 
+unsigned char* rgbToGrayScale(unsigned char* array, bmpInfoHeader bInfoHeader){
+  int i,j,y,azul,verde,rojo,indice=0;
+  //SE TRATA LA IMAGEN CON LA FORMULA
+  //Se recorre segun ancho y largo
+  for(i=0; i < bInfoHeader.height; i++){
+			for(j=0; j < bInfoHeader.width; j++){
+			     //los componentes alfa, r*0.3, g*0.59 ,b*0.11 de un pixel
+           azul=array[indice]*0.11;//azul
+           indice++;
+           verde=array[indice]*0.59;//verde
+           indice++;
+           rojo=array[indice]*0.3;//rojo
+           y=(azul+verde+rojo);
+           indice++;//estoy en alpha
+           array[indice-3]=y;
+           array[indice-2]=y;
+           array[indice-1]=y;
+           indice++;//estoy en blue del proximo j
+		  }
+	}
+  return array;
+}
+
 //Funcion que guarda una matriz de pixeles en formato bmp
 void guardarImagenGS(unsigned char* array, bmpInfoHeader bInfoHeader, bmpFileHeader header, char* filename){
-  int i,j,y,azul,verde,rojo,indice=0;
+
   //printf("%zu",bInfoHeader.height);
   FILE* imagen = fopen(filename, "w");
 	if(imagen==NULL){
@@ -354,30 +393,65 @@ void guardarImagenGS(unsigned char* array, bmpInfoHeader bInfoHeader, bmpFileHea
 	//Escribimos el arreglo de datos de la imagen en el archivo
 	//Nos movemos a la parte dle archivo en donde deben ir los datos, segun el header del archivo
 	fseek(imagen, header.offset, SEEK_SET);
-	//SE TRATA LA IMAGEN CON LA FORMULA
-  //Recorremos el arreglo con las dimensiones de ancho y largo como si fuera una matriz
-  //printf("%d",strlen((char*) array));
+  rgbToGrayScale(array,bInfoHeader);
+  //escribimos los datos de la imagen
+	fwrite(array, bInfoHeader.imgsize,1, imagen);
+	//cerramos el archivo de salida
+	fclose(imagen);
+}
+
+
+unsigned char* binarizarImagen(unsigned char* array, bmpInfoHeader bInfoHeader,int umbral){
+  int i,j,prom,azul,verde,rojo,indice=0;
+  //SE TRATA LA IMAGEN CON LA FORMULA
+  //Se recorre segun ancho y largo
   for(i=0; i < bInfoHeader.height; i++){
 			for(j=0; j < bInfoHeader.width; j++){
-
-			//los componentes alfa, g*0.59 ,r*0.3  ,b*0.11 de un pixel
-      //printf("indice: %d\n",indice);
-      //printf("array[%d]: %d\n",indice,array[indice]);
-      azul=array[indice]*0.11;//azul
-      //printf("new indice: %d\n",indice);
-      indice++;
-      verde=array[indice]*0.59;//verde
-      indice++;
-      rojo=array[indice]*0.3;//rojo
-      y=(azul+verde+rojo);
-      indice++;//estoy en alpha
-      array[indice-3]=y;
-      array[indice-2]=y;
-      array[indice-1]=y;
-      indice++;//estoy en blue y comienzo de nuevo el for j
-		}
+           azul=array[indice];//azul
+           indice++;
+           verde=array[indice];//verde
+           indice++;
+           rojo=array[indice];//rojo
+           prom=(azul+verde+rojo)/3;
+           indice++;//estoy en alpha
+           if(prom>umbral){
+             array[indice-3]=255;
+             array[indice-2]=255;
+             array[indice-1]=255;
+           }
+           else{
+             array[indice-3]=0;
+             array[indice-2]=0;
+             array[indice-1]=0;
+           }
+           indice++;//estoy en blue del proximo j
+		  }
 	}
+  return array;
+}
 
+//Funcion que guarda una matriz de pixeles en formato bmp
+void guardarImagenBin(unsigned char* array, bmpInfoHeader bInfoHeader, bmpFileHeader header, char* filename,int umbral){
+
+  //printf("%zu",bInfoHeader.height);
+  FILE* imagen = fopen(filename, "w");
+	if(imagen==NULL){
+		printf("Error de memoria en la creacion del archivo de imagen de salida.\n");
+		return;
+	}
+	//Escribimos el tipo de archivo (BM)
+	uint16_t type = 0x4D42;
+	fwrite(&type, sizeof(uint16_t), 1, imagen);
+	//Escribimos la cabecera del archivo completa
+	fwrite(&header, sizeof(bmpFileHeader),1,imagen);
+	//Escribimos la cabecera de info de la imagen completa
+	fwrite(&bInfoHeader, sizeof(bmpInfoHeader),1,imagen);
+	//obtenemos el array de datos de la imagen
+	//unsigned char* datos_imagen = transformarMatriz(pixeles);
+	//Escribimos el arreglo de datos de la imagen en el archivo
+	//Nos movemos a la parte dle archivo en donde deben ir los datos, segun el header del archivo
+	fseek(imagen, header.offset, SEEK_SET);
+  binarizarImagen(array,bInfoHeader,umbral);
   //escribimos los datos de la imagen
 	fwrite(array, bInfoHeader.imgsize,1, imagen);
 	//cerramos el archivo de salida
