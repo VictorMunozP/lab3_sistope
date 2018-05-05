@@ -15,11 +15,6 @@
 #include <time.h>
 #include <sys/wait.h>
 
-/*
-void print(){
-  printf("hello world!!\n");
-}
-*/
 int isInt(char* numero){
   /*VERIFICACION DE QUE EL ARGUMENTO numero SEA ENTERO*/
  for(int i=0;i<strlen(numero);i++){
@@ -30,9 +25,9 @@ int isInt(char* numero){
  return 1;
 }
 
-char* setNameImg(int a){
+char* setNameInput(int a){
   char* nombreEntrada=malloc(sizeof(char)*20);
-  strcpy(nombreEntrada,"image_");
+  strcpy(nombreEntrada,"imagen_");
 
   char* buffer=malloc(sizeof(char)*12);
   sprintf(buffer,"%d",a);
@@ -47,9 +42,9 @@ char* setNameImg(int a){
   return nombreDef;
 }
 
-char* setNameSalida(int a){
+char* setNameOutput(int a){
   char* nombreEntrada=malloc(sizeof(char)*20);
-  strcpy(nombreEntrada,"salida_");
+  strcpy(nombreEntrada,"output_");
 
   char* buffer=malloc(sizeof(char)*12);
   sprintf(buffer,"%d",a);
@@ -64,9 +59,9 @@ char* setNameSalida(int a){
   return nombreDef;
 }
 
-char* setNameSalidaGS(int a){
+char* setNameOutputGS(int a){
   char* nombreEntrada=malloc(sizeof(char)*20);
-  strcpy(nombreEntrada,"salidaGS_");
+  strcpy(nombreEntrada,"outputGS_");
 
   char* buffer=malloc(sizeof(char)*12);
   sprintf(buffer,"%d",a);
@@ -81,9 +76,9 @@ char* setNameSalidaGS(int a){
   return nombreDef;
 }
 
-char* setNameSalidaBin(int a){
+char* setNameOutputBin(int a){
   char* nombreEntrada=malloc(sizeof(char)*20);
-  strcpy(nombreEntrada,"salidaBin_");
+  strcpy(nombreEntrada,"outputBin_");
 
   char* buffer=malloc(sizeof(char)*12);
   sprintf(buffer,"%d",a);
@@ -98,10 +93,7 @@ char* setNameSalidaBin(int a){
   return nombreDef;
 }
 
-
-
-unsigned char* LoadBMP(char* filename, bmpInfoHeader* bInfoHeader, bmpFileHeader* header){
-
+unsigned char* loadBMP(char* filename, bmpInfoHeader* bInfoHeader, bmpFileHeader* header){
   FILE* f;
  						     /* cabecera */
   unsigned char* imgdata;   /* datos de imagen */
@@ -144,187 +136,8 @@ unsigned char* LoadBMP(char* filename, bmpInfoHeader* bInfoHeader, bmpFileHeader
   return imgdata;
 }
 
-void printInfoHeader(bmpInfoHeader* bInfoHeader){
-
-    printf("headersize: %d\n",bInfoHeader->headersize);
-    printf("width: %d\n",bInfoHeader->width);
-    printf("height: %d\n",bInfoHeader->height);
-    printf("planes: %d\n",bInfoHeader->planes);
-    printf("bits por pixel: %d\n",bInfoHeader->bpp);
-    printf("compress: %d\n",bInfoHeader->compress);
-    printf("imgsize: %d\n",bInfoHeader->imgsize);
-    printf("bpmx: %d\n",bInfoHeader->bpmx);
-    printf("bpmy: %d\n",bInfoHeader->bpmy);
-    printf("colors: %d\n",bInfoHeader->colors);
-    printf("imxtcolors: %d\n",bInfoHeader->imxtcolors);
-
-}
-
-//Funcion que transforme el array de unsigned char a una matriz de enteros 3d
-Pixeles* transformarArray(unsigned char* array, bmpInfoHeader bInfoHeader){
-	int largo = (int) bInfoHeader.height;
-	int ancho = (int) bInfoHeader.width;
-	int i,j;
-	//Usamos un indice para recorrer el array a medida que recorremos la matriz
-	int indice =0;
-	//Creamos la estructura de datos
-	Pixeles* pixeles = malloc(sizeof(Pixeles));
-	if(pixeles==NULL){
-		printf("Error de memoria en la creacion de la matriz de pixeles!!\n");
-		return NULL;
-	}
-	pixeles->ancho= ancho;
-	pixeles->largo = largo;
-	//Reservamos memoria para las filas de la matriz de pixeles
-	pixeles->matrizPixeles = malloc(sizeof(int**)*largo);
-	//Si es  nula, se aborta la creacion
-	if(pixeles->matrizPixeles==NULL){
-		printf("Error en la creacion de las filas de la matriz\n");
-		return NULL;
-	}
-	//Reservamos la memoria para las columnas de la matriz
-	//Es decir, los elementos de cada fila de la matriz
-	for(i=0; i < largo; i++){
-		pixeles->matrizPixeles[i] = malloc(sizeof(int*)*ancho);
-		//Si hay algun error, se aborta
-		if(pixeles->matrizPixeles[i]==NULL){
-			printf("Error en la creacion de las columnas de la matriz\n");
-			return NULL;
-		}
-		for(j=0; j < ancho; j++){
-			//Cada elemento de la matriz es un arreglo de 3 elementos
-			//los componentes r,g,b de un pixel
-			pixeles->matrizPixeles[i][j]= malloc(sizeof(int)*3);
-			//si alguna componente del pixel resulta nula, abortamos
-			if(pixeles->matrizPixeles[i][j]== NULL){
-				printf("Error en la creacion de los componentes de un pixel de la matriz\n");
-				return NULL;
-			}
-		}
-	}
-	//Recorremos el arreglo con las dimensiones de ancho y largo como si fuera una matriz
-	for(i=0; i < largo; i++){
-		for(j=0; j < ancho; j++){
-			//cópiamos la componente roja
-			pixeles->matrizPixeles[i][j][0] = array[indice];
-			//Avanzamos a la componente verde en el array
-			indice++;
-			//copiamos la componente verde
-			pixeles->matrizPixeles[i][j][1] = array[indice];
-			//Avanzamos a la componente azul
-			indice++;
-			//Copiamos la componente azul
-			pixeles->matrizPixeles[i][j][2] = array[indice];
-			indice++;
-		}
-	}
-	//retornamos la matriz de pixeles de 3 dimensiones
-	return pixeles;
-}
-
-//procedimiento que muestra una matriz de pixeles por pantalla
-// recibe como parametro una matriz de 3 dimensiones
-void mostrarPixeles(Pixeles* pixeles){
-	int i,j;
-	for(i=0; i< pixeles->largo; i++){
-		for(j=0; j< pixeles->ancho; j++){
-			printf("[%d %d %d] ", pixeles->matrizPixeles[i][j][0], pixeles->matrizPixeles[i][j][1], pixeles->matrizPixeles[i][j][2]);
-		}
-		printf("\n");
-	}
-}
-
-
-//Funcion que transformar una matriz de pixeles en un arreglo de unsigned char
-unsigned char* transformarMatriz(Pixeles* pixeles){
-	//Se debe poner cada componente de un pixel dentro del arreglo
-	//por lo que la dimension del arreglo es: anchox x largo x 3
-	int largo = pixeles->largo;
-	int ancho = pixeles->ancho;
-	int dimension = largo*ancho*3;
-	unsigned char* array = malloc(sizeof(unsigned char)*dimension);
-	//Recorremos la matriz de pixeles y vamos asignando componente a componente
-	//cada elemento del array
-	//para recorrer el array dentro del recorrido de la matriz, usamos un indice
-	int indice=0;
-	int i,j;
-	for(i=0; i < largo; i++){
-		for(j=0; j < ancho; j++){
-			//copiamos la componente roja de la matriz al arreglo
-			array[indice] = pixeles->matrizPixeles[i][j][0];
-			//Avanzamos a la componente verde en el arreglo
-			indice++;
-			//copiamos la componente verde de la matriz al arreglo
-			array[indice] = pixeles->matrizPixeles[i][j][1];
-			//Avanzamos a la componente azul en el arreglo
-			indice++;
-			//Copiamos la componente azul de la matriz al arreglo
-			array[indice] = pixeles->matrizPixeles[i][j][2];
-			indice++;
-		}
-	}
-	//retornamos el array de unsigned char
-	return array;
-}
-
-
 //Funcion que guarda una matriz de pixeles en formato bmp
-void guardarImagen(Pixeles* pixeles, bmpInfoHeader bInfoHeader, bmpFileHeader header, char* filename){
-	//Recibimos el mismo header de informacion y de archivo de la imagen original
-	//debemos cambiar el size del header.
-	//---> size = tamaño total del archivo --> size of(header + bInfoHeader + datos de la imagen)
-	//y en bInfoHeader debemos cambiar imgsize, width y height.
-	//----_> imgsize = ancho*largo*3 (3bytes por pixel).
-	int ancho = pixeles->ancho;
-	int largo = pixeles->largo;
-	int image_size = ancho*largo*3;
-	//modificamos primero la cabecera de info de la imagen
-	bInfoHeader.width = (uint32_t) ancho;
-	bInfoHeader.height = (uint32_t) largo;
-	bInfoHeader.imgsize = (uint32_t) image_size;
-	//Luego modificamos el header del archivo
-	header.size = (uint32_t) (sizeof(bInfoHeader) + sizeof(header) + sizeof(image_size));
-	//Abrimos el archivo de la nueva imagen
-	FILE* imagen = fopen(filename, "w");
-	if(imagen==NULL){
-		printf("Error de memoria en la creacion del archivo de imagen de salida.\n");
-		return;
-	}
-	//Escribimos el tipo de archivo (BM)
-	uint16_t type = 0x4D42;
-	fwrite(&type, sizeof(uint16_t), 1, imagen);
-	//Escribimos la cabecera del archivo completa
-	fwrite(&header, sizeof(bmpFileHeader),1,imagen);
-	//Escribimos la cabecera de info de la imagen completa
-	fwrite(&bInfoHeader, sizeof(bmpInfoHeader),1,imagen);
-	//obtenemos el array de datos de la imagen
-	unsigned char* datos_imagen = transformarMatriz(pixeles);
-	//Escribimos el arreglo de datos de la imagen en el archivo
-	//Nos movemos a la parte dle archivo en donde deben ir los datos, segun el header del archivo
-	fseek(imagen, header.offset, SEEK_SET);
-	//escribimos los datos de la imagen
-	fwrite(datos_imagen, bInfoHeader.imgsize,1, imagen);
-	//cerramos el archivo de salida
-	fclose(imagen);
-}
-
-//Funcion que guarda una matriz de pixeles en formato bmp
-void guardarImagenMIA(unsigned char* array, bmpInfoHeader bInfoHeader, bmpFileHeader header, char* filename){
-	//Recibimos el mismo header de informacion y de archivo de la imagen original
-	//debemos cambiar el size del header.
-	//---> size = tamaño total del archivo --> size of(header + bInfoHeader + datos de la imagen)
-	//y en bInfoHeader debemos cambiar imgsize, width y height.
-	//----_> imgsize = ancho*largo*3 (3bytes por pixel).
-	//int ancho = bInfoHeader->width;
-	//int largo = bInfoHeader->height;
-	//int image_size = bInfoHeader->imgsize;
-	/*modificamos primero la cabecera de info de la imagen
-	bInfoHeader.width = (uint32_t) ancho;
-	bInfoHeader.height = (uint32_t) largo;
-	bInfoHeader.imgsize = (uint32_t) image_size;
-	*/
-  //Luego modificamos el header del archivo
-	//header.size = (uint32_t) (sizeof(bInfoHeader) + sizeof(header) + sizeof(image_size));
+void saveImage(unsigned char* array, bmpInfoHeader bInfoHeader, bmpFileHeader header, char* filename){
 	//Abrimos el archivo de la nueva imagen
 	FILE* imagen = fopen(filename, "w");
 	if(imagen==NULL){
@@ -338,9 +151,6 @@ void guardarImagenMIA(unsigned char* array, bmpInfoHeader bInfoHeader, bmpFileHe
 	fwrite(&header, sizeof(bmpFileHeader),1,imagen);
 	//Escribimos la cabecera de info de la imagen completa
 	fwrite(&bInfoHeader, sizeof(bmpInfoHeader),1,imagen);
-	//obtenemos el array de datos de la imagen
-	//unsigned char* datos_imagen = transformarMatriz(pixeles);
-	//Escribimos el arreglo de datos de la imagen en el archivo
 	//Nos movemos a la parte dle archivo en donde deben ir los datos, segun el header del archivo
 	fseek(imagen, header.offset, SEEK_SET);
 	//escribimos los datos de la imagen
@@ -373,9 +183,7 @@ unsigned char* rgbToGrayScale(unsigned char* array, bmpInfoHeader bInfoHeader){
 }
 
 //Funcion que guarda una matriz de pixeles en formato bmp
-void guardarImagenGS(unsigned char* array, bmpInfoHeader bInfoHeader, bmpFileHeader header, char* filename){
-
-  //printf("%zu",bInfoHeader.height);
+void saveImageGS(unsigned char* array, bmpInfoHeader bInfoHeader, bmpFileHeader header, char* filename){
   FILE* imagen = fopen(filename, "w");
 	if(imagen==NULL){
 		printf("Error de memoria en la creacion del archivo de imagen de salida.\n");
@@ -400,8 +208,7 @@ void guardarImagenGS(unsigned char* array, bmpInfoHeader bInfoHeader, bmpFileHea
 	fclose(imagen);
 }
 
-
-unsigned char* binarizarImagen(unsigned char* array, bmpInfoHeader bInfoHeader,int umbral){
+unsigned char* binarizeImage(unsigned char* array, bmpInfoHeader bInfoHeader,int umbral){
   int i,j,prom,azul,verde,rojo,indice=0;
   //SE TRATA LA IMAGEN CON LA FORMULA
   //Se recorre segun ancho y largo
@@ -431,9 +238,8 @@ unsigned char* binarizarImagen(unsigned char* array, bmpInfoHeader bInfoHeader,i
 }
 
 //Funcion que guarda una matriz de pixeles en formato bmp
-void guardarImagenBin(unsigned char* array, bmpInfoHeader bInfoHeader, bmpFileHeader header, char* filename,int umbral){
+void saveImageBin(unsigned char* array, bmpInfoHeader bInfoHeader, bmpFileHeader header, char* filename,int umbral){
 
-  //printf("%zu",bInfoHeader.height);
   FILE* imagen = fopen(filename, "w");
 	if(imagen==NULL){
 		printf("Error de memoria en la creacion del archivo de imagen de salida.\n");
@@ -451,9 +257,40 @@ void guardarImagenBin(unsigned char* array, bmpInfoHeader bInfoHeader, bmpFileHe
 	//Escribimos el arreglo de datos de la imagen en el archivo
 	//Nos movemos a la parte dle archivo en donde deben ir los datos, segun el header del archivo
 	fseek(imagen, header.offset, SEEK_SET);
-  binarizarImagen(array,bInfoHeader,umbral);
+  binarizeImage(array,bInfoHeader,umbral);
   //escribimos los datos de la imagen
 	fwrite(array, bInfoHeader.imgsize,1, imagen);
 	//cerramos el archivo de salida
 	fclose(imagen);
+}
+
+int nearlyBlack(unsigned char* array, bmpInfoHeader bInfoHeader,int umbralPorcentaje){
+  int i,j,prom,azul,verde,rojo,negro,blanco,indice=0;
+  negro=0;
+  blanco=0;
+  //Se recorre segun ancho y largo
+  for(i=0; i < bInfoHeader.height; i++){
+			for(j=0; j < bInfoHeader.width; j++){
+           azul=array[indice];//azul
+           indice++;
+           verde=array[indice];//verde
+           indice++;
+           rojo=array[indice];//rojo
+           prom=(azul+verde+rojo)/3;
+           indice++;//estoy en alpha
+           if(prom>127){
+             blanco++;
+           }
+           else{
+             negro++;
+           }
+           indice++;//estoy en blue del proximo j
+		  }
+	}
+  if((negro/(negro+blanco))>(umbralPorcentaje/100)){
+      return 1;
+  }
+  else{
+    return 0;
+  }
 }

@@ -12,14 +12,17 @@
 #include <math.h>
 
 int main(int argc, char** argv){
-  int a, numImages,umbralBin,umbralClas;
+  int a, numImages,umbralBin,umbralClas,i,answerNB,imprimir=0;
+  bmpInfoHeader bInfoHeader;
+	bmpFileHeader header;
+
 
   while ((a = getopt (argc, argv, "bc:u:n:")) != -1){
     switch(a){
       case 'c':
         if(isInt(optarg)){
           numImages=atoi(optarg);
-          printf("The number of images to process are: %i\n",numImages);
+          //printf("The number of images to process are: %i\n",numImages);
         }
         else{
           printf("The input -c has a character not valid (only integer digits!)\n");
@@ -29,7 +32,7 @@ int main(int argc, char** argv){
       case 'u':
         if(isInt(optarg)){
           umbralBin=atoi(optarg);
-          printf("UMBRAL to Bin is: %i\n",umbralBin);
+          //printf("UMBRAL to Bin is: %i\n",umbralBin);
         }
         else{
           printf("Not valid input -u (only integer digits!)\n");
@@ -39,7 +42,7 @@ int main(int argc, char** argv){
       case 'n':
         if(isInt(optarg)){
           umbralClas=atoi(optarg);
-          printf("UMBRAL to classify is:%i\n",umbralClas);
+          //printf("UMBRAL to classify is:%i\n",umbralClas);
         }
         else{
           printf("The input -n has a not valid character (only integer digits!)\n");
@@ -47,7 +50,7 @@ int main(int argc, char** argv){
         }
         break;
       case 'b':
-        printf("Printing...\n");
+        imprimir=1;
         break;
       case '?':
         if (optopt == 'c' || optopt == 'u' || optopt == 'n')
@@ -62,30 +65,42 @@ int main(int argc, char** argv){
     }//fin del switch
   }//fin del while
 
-  bmpInfoHeader bInfoHeader;
-	bmpFileHeader header;
 
-  for(int i=1;i<numImages+1;i++){
+  if(imprimir==1){
+    printf("|    image   | nearly black  |\n");
+    printf("|------------|---------------|\n");
+  }
+
+  for(i=1;i<numImages+1;i++){
+
     char* nombreEntrada=malloc(sizeof(char)*22);
-    nombreEntrada=setNameImg(i);
-    //printf("Nombre de entrada:%s\n",nombreDef);
-    unsigned char* imagen = LoadBMP(nombreEntrada, &bInfoHeader, &header);
+    nombreEntrada=setNameInput(i);
+    unsigned char* imagen = loadBMP(nombreEntrada, &bInfoHeader, &header);
 
-
+    /*
     char* nombreSalida=malloc(sizeof(char)*22);
-    nombreSalida=setNameSalida(i);
-    guardarImagenMIA(imagen, bInfoHeader, header,nombreSalida);
+    nombreSalida=setNameOutput(i);
+    saveImage(imagen, bInfoHeader, header,nombreSalida);
+    */
 
-
-
-    unsigned char* imagenGS = LoadBMP(nombreEntrada, &bInfoHeader, &header);
+    //unsigned char* imagenGS = LoadBMP(nombreEntrada, &bInfoHeader, &header);
     char* nombreSalidaGS=malloc(sizeof(char)*22);
-    nombreSalidaGS=setNameSalidaGS(i);
-    guardarImagenGS(imagenGS, bInfoHeader, header,nombreSalidaGS);
+    nombreSalidaGS=setNameOutputGS(i);
+    saveImageGS(imagen, bInfoHeader, header,nombreSalidaGS);
 
     char* nombreSalidaBin=malloc(sizeof(char)*22);
-    nombreSalidaBin=setNameSalidaBin(i);
-    guardarImagenBin(imagen,bInfoHeader,header,nombreSalidaBin,umbralBin);
+    nombreSalidaBin=setNameOutputBin(i);
+    saveImageBin(imagen,bInfoHeader,header,nombreSalidaBin,umbralBin);
+
+    if(imprimir==1){
+      //printf("|    image   | nearly black  |\n");
+      //printf("|----------------------------|\n");
+      //for(i=1;i<numImages+1;i++){
+        answerNB=nearlyBlack(imagen,bInfoHeader,umbralClas);
+        printf("|  imagen_%d  |      %d      |\n",i,answerNB);
+      //}
+    }
+
 
   }
   return 0;

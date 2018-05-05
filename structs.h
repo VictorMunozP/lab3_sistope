@@ -27,12 +27,12 @@ typedef struct bmpInfoHeader
   uint32_t imxtcolors;      /* Colores importantes. 0 si son todos */
 } bmpInfoHeader;
 
-
+/*
 typedef struct matriz{
   int*** matrizPixeles;
   int largo;
   int ancho;
 } Pixeles;
-
+*/
 
 #endif

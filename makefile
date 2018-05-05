@@ -10,4 +10,4 @@ main.o: main.c
 		$(CC) main.c -Wall -c -o main.o
 
 clean:
-	rm pipeline *.o salida*.bmp
+	rm pipeline *.o output*.bmp
