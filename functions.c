@@ -64,8 +64,27 @@ char* setNameSalida(int a){
   return nombreDef;
 }
 
-unsigned char* LoadBMP(char* filename, bmpInfoHeader* bInfoHeader, bmpFileHeader* header)
-{
+char* setNameSalidaGS(int a){
+  char* nombreEntrada=malloc(sizeof(char)*20);
+  strcpy(nombreEntrada,"salidaGS_");
+
+  char* buffer=malloc(sizeof(char)*12);
+  sprintf(buffer,"%d",a);
+
+  char* formato=".bmp";
+
+  char* nombreDef=malloc(sizeof(char)*22);
+  nombreDef=strcat(nombreEntrada,buffer);
+  //printf("nombre parcial: %s\n",nombreDef);
+  nombreDef=strcat(nombreDef,formato);
+  //printf("%s\n",nombreDef);
+  return nombreDef;
+}
+
+
+
+
+unsigned char* LoadBMP(char* filename, bmpInfoHeader* bInfoHeader, bmpFileHeader* header){
 
   FILE* f;
  						     /* cabecera */
@@ -101,11 +120,28 @@ unsigned char* LoadBMP(char* filename, bmpInfoHeader* bInfoHeader, bmpFileHeader
   /* Leemos los datos de imagen, tantos bytes como imgsize */
   fread(imgdata, bInfoHeader->imgsize,1, f);
 
+
   /* Cerramos */
   fclose(f);
 
   /* Devolvemos la imagen */
   return imgdata;
+}
+
+void printInfoHeader(bmpInfoHeader* bInfoHeader){
+
+    printf("headersize: %d\n",bInfoHeader->headersize);
+    printf("width: %d\n",bInfoHeader->width);
+    printf("height: %d\n",bInfoHeader->height);
+    printf("planes: %d\n",bInfoHeader->planes);
+    printf("bits por pixel: %d\n",bInfoHeader->bpp);
+    printf("compress: %d\n",bInfoHeader->compress);
+    printf("imgsize: %d\n",bInfoHeader->imgsize);
+    printf("bpmx: %d\n",bInfoHeader->bpmx);
+    printf("bpmy: %d\n",bInfoHeader->bpmy);
+    printf("colors: %d\n",bInfoHeader->colors);
+    printf("imxtcolors: %d\n",bInfoHeader->imxtcolors);
+
 }
 
 //Funcion que transforme el array de unsigned char a una matriz de enteros 3d
@@ -198,7 +234,7 @@ unsigned char* transformarMatriz(Pixeles* pixeles){
 	int i,j;
 	for(i=0; i < largo; i++){
 		for(j=0; j < ancho; j++){
-			//cópiamos la componente roja de la matriz al arreglo
+			//copiamos la componente roja de la matriz al arreglo
 			array[indice] = pixeles->matrizPixeles[i][j][0];
 			//Avanzamos a la componente verde en el arreglo
 			indice++;
@@ -292,6 +328,53 @@ void guardarImagenMIA(unsigned char* array, bmpInfoHeader bInfoHeader, bmpFileHe
 	//Nos movemos a la parte dle archivo en donde deben ir los datos, segun el header del archivo
 	fseek(imagen, header.offset, SEEK_SET);
 	//escribimos los datos de la imagen
+	fwrite(array, bInfoHeader.imgsize,1, imagen);
+	//cerramos el archivo de salida
+	fclose(imagen);
+}
+
+//Funcion que guarda una matriz de pixeles en formato bmp
+void guardarImagenGS(unsigned char* array, bmpInfoHeader bInfoHeader, bmpFileHeader header, char* filename){
+  int i,j,y,indice=0;
+  //printf("%zu",bInfoHeader.height);
+  FILE* imagen = fopen(filename, "w");
+	if(imagen==NULL){
+		printf("Error de memoria en la creacion del archivo de imagen de salida.\n");
+		return;
+	}
+	//Escribimos el tipo de archivo (BM)
+	uint16_t type = 0x4D42;
+	fwrite(&type, sizeof(uint16_t), 1, imagen);
+	//Escribimos la cabecera del archivo completa
+	fwrite(&header, sizeof(bmpFileHeader),1,imagen);
+	//Escribimos la cabecera de info de la imagen completa
+	fwrite(&bInfoHeader, sizeof(bmpInfoHeader),1,imagen);
+	//obtenemos el array de datos de la imagen
+	//unsigned char* datos_imagen = transformarMatriz(pixeles);
+	//Escribimos el arreglo de datos de la imagen en el archivo
+	//Nos movemos a la parte dle archivo en donde deben ir los datos, segun el header del archivo
+	fseek(imagen, header.offset, SEEK_SET);
+	//SE TRATA LA IMAGEN CON LA FORMULA
+  //Recorremos el arreglo con las dimensiones de ancho y largo como si fuera una matriz
+  //printf("%d",strlen((char*) array));
+  for(i=0; i < bInfoHeader.height; i++){
+			for(j=0; j < bInfoHeader.width; j++){
+
+			//los componentes alfa, g*0.59 ,r*0.3  ,b*0.11 de un pixel
+      //printf("indice: %d\n",indice);
+      //printf("array[%d]: %d\n",indice,array[indice]);
+			array[indice]=array[indice]*0.11;//azul
+      //printf("new indice: %d\n",indice);
+      indice++;
+      array[indice]=array[indice]*0.59;//verde
+      indice++;
+      array[indice]=array[indice]*0.3;//rojo
+      indice++;
+      indice++;
+		}
+	}
+
+  //escribimos los datos de la imagen
 	fwrite(array, bInfoHeader.imgsize,1, imagen);
 	//cerramos el archivo de salida
 	fclose(imagen);

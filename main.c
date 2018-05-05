@@ -76,6 +76,13 @@ int main(int argc, char** argv){
     char* nombreSalida=malloc(sizeof(char)*22);
     nombreSalida=setNameSalida(i);
     guardarImagenMIA(imagen, bInfoHeader, header,nombreSalida);
+
+
+
+    unsigned char* imagenGS = LoadBMP(nombreEntrada, &bInfoHeader, &header);
+    char* nombreSalidaGS=malloc(sizeof(char)*22);
+    nombreSalidaGS=setNameSalidaGS(i);
+    guardarImagenGS(imagenGS, bInfoHeader, header,nombreSalidaGS);
     //printf("Nombre de salida: %s\n",salida);
 
   }
