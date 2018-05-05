@@ -335,7 +335,7 @@ void guardarImagenMIA(unsigned char* array, bmpInfoHeader bInfoHeader, bmpFileHe
 
 //Funcion que guarda una matriz de pixeles en formato bmp
 void guardarImagenGS(unsigned char* array, bmpInfoHeader bInfoHeader, bmpFileHeader header, char* filename){
-  int i,j,y,indice=0;
+  int i,j,y,azul,verde,rojo,indice=0;
   //printf("%zu",bInfoHeader.height);
   FILE* imagen = fopen(filename, "w");
 	if(imagen==NULL){
@@ -363,14 +363,18 @@ void guardarImagenGS(unsigned char* array, bmpInfoHeader bInfoHeader, bmpFileHea
 			//los componentes alfa, g*0.59 ,r*0.3  ,b*0.11 de un pixel
       //printf("indice: %d\n",indice);
       //printf("array[%d]: %d\n",indice,array[indice]);
-			array[indice]=array[indice]*0.11;//azul
+      azul=array[indice]*0.11;//azul
       //printf("new indice: %d\n",indice);
       indice++;
-      array[indice]=array[indice]*0.59;//verde
+      verde=array[indice]*0.59;//verde
       indice++;
-      array[indice]=array[indice]*0.3;//rojo
-      indice++;
-      indice++;
+      rojo=array[indice]*0.3;//rojo
+      y=(azul+verde+rojo);
+      indice++;//estoy en alpha
+      array[indice-3]=y;
+      array[indice-2]=y;
+      array[indice-1]=y;
+      indice++;//estoy en blue y comienzo de nuevo el for j
 		}
 	}
 
