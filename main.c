@@ -83,25 +83,28 @@ int main(int argc, char** argv){
     saveImage(imagen, bInfoHeader, header,nombreSalida);
     */
 
-    //unsigned char* imagenGS = LoadBMP(nombreEntrada, &bInfoHeader, &header);
+
     char* nombreSalidaGS=malloc(sizeof(char)*22);
     nombreSalidaGS=setNameOutputGS(i);
     saveImageGS(imagen, bInfoHeader, header,nombreSalidaGS);
 
+    unsigned char* imagen2 = loadBMP(nombreEntrada, &bInfoHeader, &header);
     char* nombreSalidaBin=malloc(sizeof(char)*22);
     nombreSalidaBin=setNameOutputBin(i);
-    saveImageBin(imagen,bInfoHeader,header,nombreSalidaBin,umbralBin);
+    saveImageBin(imagen2,bInfoHeader,header,nombreSalidaBin,umbralBin);
 
     if(imprimir==1){
-      //printf("|    image   | nearly black  |\n");
-      //printf("|----------------------------|\n");
-      //for(i=1;i<numImages+1;i++){
-        answerNB=nearlyBlack(imagen,bInfoHeader,umbralClas);
-        printf("|  imagen_%d  |      %d      |\n",i,answerNB);
-      //}
+      //unsigned char* imagen3 = loadBMP(nombreEntrada, &bInfoHeader, &header);
+      //saveImage(imagen3,bInfoHeader,header,"guardadopreNearly.bmp");
+      answerNB=nearlyBlack(imagen2,bInfoHeader,umbralClas);
+      printf("|  imagen_%d  |      %d      |\n",i,answerNB);
+      //free(imagen3);
     }
+    free(imagen);
+    free(imagen2);
 
 
   }
+
   return 0;
 }

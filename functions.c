@@ -276,18 +276,18 @@ int nearlyBlack(unsigned char* array, bmpInfoHeader bInfoHeader,int umbralPorcen
            verde=array[indice];//verde
            indice++;
            rojo=array[indice];//rojo
-           prom=(azul+verde+rojo)/3;
+           (float)prom=(float)(azul+verde+rojo)/3;
            indice++;//estoy en alpha
-           if(prom>127){
-             blanco++;
+           if(prom==0){
+             negro++;
            }
            else{
-             negro++;
+             blanco++;
            }
            indice++;//estoy en blue del proximo j
 		  }
 	}
-  if((negro/(negro+blanco))>(umbralPorcentaje/100)){
+  if((float)(negro/(negro+blanco))>=(float)(umbralPorcentaje/100)){
       return 1;
   }
   else{
