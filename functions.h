@@ -19,4 +19,4 @@ unsigned char* binarizeImage(unsigned char* array, bmpInfoHeader bInfoHeader,int
 
 void saveImageBin(unsigned char* array, bmpInfoHeader bInfoHeader, bmpFileHeader header, char* filename,int umbral);
 
-int nearlyBlack(unsigned char* array, bmpInfoHeader bInfoHeader,int umbral);
+char* nearlyBlack(unsigned char* array, bmpInfoHeader bInfoHeader,int umbral);

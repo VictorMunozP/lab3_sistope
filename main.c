@@ -12,7 +12,7 @@
 #include <math.h>
 
 int main(int argc, char** argv){
-  int a, numImages,umbralBin,umbralClas,i,answerNB,imprimir=0;
+  int a, numImages,umbralBin,umbralClas,i,imprimir=0;
   bmpInfoHeader bInfoHeader;
 	bmpFileHeader header;
 
@@ -95,9 +95,10 @@ int main(int argc, char** argv){
 
     if(imprimir==1){
       //unsigned char* imagen3 = loadBMP(nombreEntrada, &bInfoHeader, &header);
-      //saveImage(imagen3,bInfoHeader,header,"guardadopreNearly.bmp");
+      //saveImage(imagen,bInfoHeader,header,"output_123.bmp");
+      char* answerNB=malloc(sizeof(char)*4);
       answerNB=nearlyBlack(imagen2,bInfoHeader,umbralClas);
-      printf("|  imagen_%d  |      %d      |\n",i,answerNB);
+      printf("|  imagen_%d  |      %s      |\n",i,answerNB);
       //free(imagen3);
     }
     free(imagen);
