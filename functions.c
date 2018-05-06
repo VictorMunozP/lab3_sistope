@@ -93,7 +93,7 @@ char* setNameOutputBin(int a){
   return nombreDef;
 }
 
-unsigned char* loadBMP(char* filename, bmpInfoHeader* bInfoHeader, bmpFileHeader* header){
+unsigned char* loadImage(char* filename, bmpInfoHeader* bInfoHeader, bmpFileHeader* header){
   int f;
  						     /* cabecera */
   unsigned char* imgdata;   /* datos de imagen */
@@ -203,71 +203,7 @@ unsigned char* rgbToGrayScale(unsigned char* array, bmpInfoHeader bInfoHeader){
   return array;
 }
 
-//Funcion que guarda una matriz de pixeles en formato bmp
-void saveImageGS(unsigned char* array, bmpInfoHeader bInfoHeader, bmpFileHeader header, char* filename){
-  /*
-  FILE* imagen = fopen(filename, "w");
-	if(imagen==NULL){
-		printf("Error de memoria en la creacion del archivo de imagen de salida.\n");
-		return;
-	}
-	//Escribimos el tipo de archivo (BM)
-	uint16_t type = 0x4D42;
-	fwrite(&type, sizeof(uint16_t), 1, imagen);
-	//Escribimos la cabecera del archivo completa
-	fwrite(&header, sizeof(bmpFileHeader),1,imagen);
-	//Escribimos la cabecera de info de la imagen completa
-	fwrite(&bInfoHeader, sizeof(bmpInfoHeader),1,imagen);
-	//obtenemos el array de datos de la imagen
-	//unsigned char* datos_imagen = transformarMatriz(pixeles);
-	//Escribimos el arreglo de datos de la imagen en el archivo
-	//Nos movemos a la parte dle archivo en donde deben ir los datos, segun el header del archivo
-	fseek(imagen, header.offset, SEEK_SET);
-  rgbToGrayScale(array,bInfoHeader);
-  //escribimos los datos de la imagen
-	fwrite(array, bInfoHeader.imgsize,1, imagen);
-	//cerramos el archivo de salida
-	fclose(imagen);
-  */
-  //Abrimos el archivo de la nueva imagen
-  int imagen= open(filename, O_CREAT | O_WRONLY,S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH);
-  //printf("%d\n",imagen);
-  //FILE* imagen = fopen(filename, "w");
-	if(imagen<0){
-		printf("Error: %d.\n",errno);
-		return;
-	}
-	//Escribimos el tipo de archivo (BM)
-	uint16_t type = 0x4D42;
-  //fwrite(&type, sizeof(uint16_t), 1, imagen);
-  if(write(imagen, &type, sizeof(uint16_t)) != sizeof(uint16_t) ){
-      write(2,"There was an error writing to standard out\n", 44);
-  }
 
-  //Escribimos la cabecera del archivo completa
-	//fwrite(&header, sizeof(bmpFileHeader),1,imagen);
-  write(imagen, &header, sizeof(bmpFileHeader) );
-
-  //Escribimos la cabecera de info de la imagen completa
-	//fwrite(&bInfoHeader, sizeof(bmpInfoHeader),1,imagen);
-  write(imagen, &bInfoHeader, sizeof(bmpInfoHeader) );
-
-  //Nos movemos a la parte del archivo en donde deben ir los datos, segun el header del archivo
-	//fseek(imagen, header.offset, SEEK_SET);
-  //lseek(int fd, off_t offset, int whence);
-  if(lseek(imagen, header.offset, SEEK_SET)<0){
-    printf("se cae en lseek\n");
-  }
-  rgbToGrayScale(array,bInfoHeader);
-  //escribimos los datos de la imagen
-	//fwrite(array, bInfoHeader.imgsize,1, imagen);
-  write(imagen, array, bInfoHeader.imgsize );
-  //cerramos el archivo de salida
-	if(close(imagen)<0){
-    printf("falla en close()\n");
-  }
-
-}
 
 unsigned char* binarizeImage(unsigned char* array, bmpInfoHeader bInfoHeader,int umbral){
   int i,j,prom,azul,verde,rojo,indice=0;
@@ -298,72 +234,11 @@ unsigned char* binarizeImage(unsigned char* array, bmpInfoHeader bInfoHeader,int
   return array;
 }
 
-//Funcion que guarda una matriz de pixeles en formato bmp
-void saveImageBin(unsigned char* array, bmpInfoHeader bInfoHeader, bmpFileHeader header, char* filename,int umbral){
-  /*
-  FILE* imagen = fopen(filename, "w");
-	if(imagen==NULL){
-		printf("Error de memoria en la creacion del archivo de imagen de salida.\n");
-		return;
-	}
-	//Escribimos el tipo de archivo (BM)
-	uint16_t type = 0x4D42;
-	fwrite(&type, sizeof(uint16_t), 1, imagen);
-	//Escribimos la cabecera del archivo completa
-	fwrite(&header, sizeof(bmpFileHeader),1,imagen);
-	//Escribimos la cabecera de info de la imagen completa
-	fwrite(&bInfoHeader, sizeof(bmpInfoHeader),1,imagen);
-	//obtenemos el array de datos de la imagen
-	//unsigned char* datos_imagen = transformarMatriz(pixeles);
-	//Escribimos el arreglo de datos de la imagen en el archivo
-	//Nos movemos a la parte dle archivo en donde deben ir los datos, segun el header del archivo
-	fseek(imagen, header.offset, SEEK_SET);
-  binarizeImage(array,bInfoHeader,umbral);
-  //escribimos los datos de la imagen
-	fwrite(array, bInfoHeader.imgsize,1, imagen);
-	//cerramos el archivo de salida
-	fclose(imagen);*/
-  //Abrimos el archivo de la nueva imagen
-  int imagen= open(filename, O_CREAT | O_WRONLY,S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH);
-  //printf("%d\n",imagen);
-  //FILE* imagen = fopen(filename, "w");
-	if(imagen<0){
-		printf("Error: %d.\n",errno);
-		return;
-	}
-	//Escribimos el tipo de archivo (BM)
-	uint16_t type = 0x4D42;
-  //fwrite(&type, sizeof(uint16_t), 1, imagen);
-  if(write(imagen, &type, sizeof(uint16_t)) != sizeof(uint16_t) ){
-      write(2,"There was an error writing to standard out\n", 44);
-  }
 
-  //Escribimos la cabecera del archivo completa
-	//fwrite(&header, sizeof(bmpFileHeader),1,imagen);
-  write(imagen, &header, sizeof(bmpFileHeader) );
-
-  //Escribimos la cabecera de info de la imagen completa
-	//fwrite(&bInfoHeader, sizeof(bmpInfoHeader),1,imagen);
-  write(imagen, &bInfoHeader, sizeof(bmpInfoHeader) );
-
-  //Nos movemos a la parte del archivo en donde deben ir los datos, segun el header del archivo
-	//fseek(imagen, header.offset, SEEK_SET);
-  //lseek(int fd, off_t offset, int whence);
-  if(lseek(imagen, header.offset, SEEK_SET)<0){
-    printf("se cae en lseek\n");
-  }
-  binarizeImage(array,bInfoHeader,umbral);
-  //escribimos los datos de la imagen
-	//fwrite(array, bInfoHeader.imgsize,1, imagen);
-  write(imagen, array, bInfoHeader.imgsize );
-  //cerramos el archivo de salida
-	if(close(imagen)<0){
-    printf("falla en close()\n");
-  }
-}
 
 char* nearlyBlack(unsigned char* array, bmpInfoHeader bInfoHeader,int umbralPorcentaje){
-  int i,j,prom,azul,verde,rojo,negro,blanco,indice=0;
+  int i,j,prom,azul,verde,rojo,indice=0;
+  float negro,blanco;
   negro=0;
   blanco=0;
   //Se recorre segun ancho y largo
@@ -385,7 +260,7 @@ char* nearlyBlack(unsigned char* array, bmpInfoHeader bInfoHeader,int umbralPorc
            indice++;//estoy en blue del proximo j
 		  }
 	}
-  if((float)(negro/(negro+blanco))>=(float)(umbralPorcentaje/100)){
+  if((negro/(negro+blanco))>=(float)(umbralPorcentaje/100)){
       return "yes";
   }
   else{

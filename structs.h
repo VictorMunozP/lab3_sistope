@@ -6,7 +6,7 @@
 typedef struct bmpFileHeader
 {
   /* 2 bytes de identificación */
-  uint32_t size;        /* Tamaño del archivo */
+  uint32_t size;        /* Tamaño de archivo*/
   uint16_t resv1;       /* Reservado */
   uint16_t resv2;       /* Reservado */
   uint32_t offset;      /* Offset hasta hasta los datos de imagen */
@@ -27,12 +27,5 @@ typedef struct bmpInfoHeader
   uint32_t imxtcolors;      /* Colores importantes. 0 si son todos */
 } bmpInfoHeader;
 
-/*
-typedef struct matriz{
-  int*** matrizPixeles;
-  int largo;
-  int ancho;
-} Pixeles;
-*/
 
 #endif

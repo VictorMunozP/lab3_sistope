@@ -11,12 +11,18 @@
 #include <string.h>
 #include <math.h>
 
+/**
+* Funcion principal
+* @param argc cantidad de parametros recibidos por consola
+* @param argv arreglo de parametros recibidos
+* @return entero
+*/
 int main(int argc, char** argv){
   int a, numImages,umbralBin,umbralClas,i,imprimir=0;
   bmpInfoHeader bInfoHeader;
 	bmpFileHeader header;
 
-
+  //Bloque while para uso de funcion getopt
   while ((a = getopt (argc, argv, "bc:u:n:")) != -1){
     switch(a){
       case 'c':
@@ -45,7 +51,7 @@ int main(int argc, char** argv){
           //printf("UMBRAL to classify is:%i\n",umbralClas);
         }
         else{
-          printf("The input -n has a not valid character (only integer digits!)\n");
+          printf("Not valid input -u (only integer digits!)\n");
           return 0;
         }
         break;
@@ -54,11 +60,11 @@ int main(int argc, char** argv){
         break;
       case '?':
         if (optopt == 'c' || optopt == 'u' || optopt == 'n')
-          fprintf (stderr, "Opcion -%c requiere un argumento.\n", optopt);
+          fprintf (stderr, "Option -%c requires an argument.\n", optopt);
         else if (isprint (optopt))
-          fprintf (stderr, "Unknowing option `-%c'.\n", optopt);
+          fprintf (stderr, "Unknow option `-%c'.\n", optopt);
         else
-          fprintf (stderr,"Opcion con caracter desconocido `\\x%x'.\n",optopt);
+          fprintf (stderr,"Option with unknown character `\\x%x'.\n",optopt);
           return 1;
       default:
         abort();
@@ -66,46 +72,42 @@ int main(int argc, char** argv){
   }//fin del while
 
 
-  if(imprimir==1){
+  if(imprimir==1){//la variable imprimir es seteada en 1 segun la bandera -b
     printf("|    image   | nearly black  |\n");
     printf("|------------|---------------|\n");
   }
 
+  //ciclo for para procesar las imagenes, una a la vez
   for(i=1;i<numImages+1;i++){
 
+    //Se construye nombre de entrada de las imagenes segun enunciado
     char* nombreEntrada=malloc(sizeof(char)*22);
     nombreEntrada=setNameInput(i);
-    unsigned char* imagen = loadBMP(nombreEntrada, &bInfoHeader, &header);
-
-    /*
-    char* nombreSalida=malloc(sizeof(char)*22);
-    nombreSalida=setNameOutput(i);
-    saveImage(imagen, bInfoHeader, header,nombreSalida);
-    */
 
 
+    //GS= GrayScale
+    unsigned char* imagen = loadImage(nombreEntrada, &bInfoHeader, &header);
     char* nombreSalidaGS=malloc(sizeof(char)*22);
     nombreSalidaGS=setNameOutputGS(i);
-    saveImageGS(imagen, bInfoHeader, header,nombreSalidaGS);
+    rgbToGrayScale(imagen,bInfoHeader);
+    saveImage(imagen, bInfoHeader, header,nombreSalidaGS);
 
-    unsigned char* imagen2 = loadBMP(nombreEntrada, &bInfoHeader, &header);
+    //Bin= Binarize
+    unsigned char* imagen2 = loadImage(nombreEntrada, &bInfoHeader, &header);
     char* nombreSalidaBin=malloc(sizeof(char)*22);
     nombreSalidaBin=setNameOutputBin(i);
-    saveImageBin(imagen2,bInfoHeader,header,nombreSalidaBin,umbralBin);
+    binarizeImage(imagen2,bInfoHeader,umbralBin);
+    saveImage(imagen2, bInfoHeader, header,nombreSalidaBin);
 
     if(imprimir==1){
-      //unsigned char* imagen3 = loadBMP(nombreEntrada, &bInfoHeader, &header);
-      //saveImage(imagen,bInfoHeader,header,"output_123.bmp");
       char* answerNB=malloc(sizeof(char)*4);
       answerNB=nearlyBlack(imagen2,bInfoHeader,umbralClas);
       printf("|  imagen_%d  |      %s      |\n",i,answerNB);
-      //free(imagen3);
     }
     free(imagen);
     free(imagen2);
 
-
-  }
+  }//fin del ciclo for para procesar las imagenes
 
   return 0;
 }
