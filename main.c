@@ -31,7 +31,7 @@ int main(int argc, char** argv){
           //printf("The number of images to process are: %i\n",numImages);
         }
         else{
-          printf("The input -c has a character not valid (only integer digits!)\n");
+          printf("Not valid input -c (only integer digits!)\n");
           return 0;
         }
         break;
@@ -51,7 +51,7 @@ int main(int argc, char** argv){
           //printf("UMBRAL to classify is:%i\n",umbralClas);
         }
         else{
-          printf("Not valid input -u (only integer digits!)\n");
+          printf("Not valid input -n (only integer digits!)\n");
           return 0;
         }
         break;
