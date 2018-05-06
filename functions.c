@@ -94,28 +94,31 @@ char* setNameOutputBin(int a){
 }
 
 unsigned char* loadBMP(char* filename, bmpInfoHeader* bInfoHeader, bmpFileHeader* header){
-  FILE* f;
+  int f;
  						     /* cabecera */
   unsigned char* imgdata;   /* datos de imagen */
   uint16_t type;        /* 2 bytes identificativos */
 
-  f=fopen (filename, "r");
-  if (!f)
-    return NULL;        /* Si no podemos leer, no hay imagen*/
+  f=open (filename, O_RDONLY);
+  if (f<0){
+    return NULL;
+  }        //retorno en caso de error
 
   /* Leemos los dos primeros bytes */
-  fread(&type, sizeof(uint16_t), 1, f);
+  //fread(&type, sizeof(uint16_t), 1, f);
+  //read(int fildes, void *buf, size_t nbyte);
+  read(f, &type, sizeof(uint16_t));
   if (type !=0x4D42)        /* Comprobamos el formato */
     {
-      fclose(f);
+      close(f);
       return NULL;
     }
 
   /* Leemos la cabecera de fichero completa */
-  fread(header, sizeof(bmpFileHeader), 1, f);
+  read(f,header, sizeof(bmpFileHeader));
 
   /* Leemos la cabecera de información completa */
-  fread(bInfoHeader, sizeof(bmpInfoHeader), 1, f);
+  read(f,bInfoHeader, sizeof(bmpInfoHeader));
 
   /* Reservamos memoria para la imagen, ¿cuánta?
      Tanto como indique imgsize */
@@ -123,14 +126,14 @@ unsigned char* loadBMP(char* filename, bmpInfoHeader* bInfoHeader, bmpFileHeader
 
   /* Nos situamos en el sitio donde empiezan los datos de imagen,
    nos lo indica el offset de la cabecera de fichero*/
-  fseek(f, header->offset, SEEK_SET);
+  lseek(f, header->offset, SEEK_SET);
 
   /* Leemos los datos de imagen, tantos bytes como imgsize */
-  fread(imgdata, bInfoHeader->imgsize,1, f);
+  read(f,imgdata, bInfoHeader->imgsize);
 
 
   /* Cerramos */
-  fclose(f);
+  close(f);
 
   /* Devolvemos la imagen */
   return imgdata;
