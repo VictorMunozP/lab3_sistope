@@ -1,5 +1,7 @@
 #include "structs.h"
 
+
+
 //Se incluyen las cabeceras de las funciones utilizadas
 
 int isInt(char* numero);
@@ -12,6 +14,8 @@ unsigned char* loadImage(char *filename, bmpInfoHeader *bInfoHeader, bmpFileHead
 void saveImage(unsigned char* array, bmpInfoHeader bInfoHeader, bmpFileHeader header, char* filename);
 
 unsigned char* rgbToGrayScale(unsigned char* array, bmpInfoHeader bInfoHeader);
+void* rgbToGrayScaleByRow(void* a);
+void* rgbToGrayScaleByRow2(void* a);
 
 unsigned char* binarizeImage(unsigned char* array, bmpInfoHeader bInfoHeader,int umbral);
 

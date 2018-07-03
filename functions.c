@@ -1,6 +1,7 @@
 #include "structs.h"
 #include "functions.h"
 
+
 #include <fcntl.h>
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -14,6 +15,9 @@
 #include <errno.h>
 #include <time.h>
 #include <sys/wait.h>
+#include <pthread.h>
+
+
 
 /**
 * isInt: funcion que verifica si el arreglo recibido solo contiene caracteres numericos
@@ -181,6 +185,7 @@ void saveImage(unsigned char* array, bmpInfoHeader bInfoHeader, bmpFileHeader he
 * @return mismo arreglo de caracteres entrante pero con nuevos valores "Y"(resulantes de e.l.) en los pixeles
 */
 unsigned char* rgbToGrayScale(unsigned char* array, bmpInfoHeader bInfoHeader){
+  //pthread_barrier_wait(&mybarrier);
   int i,j,y,azul,verde,rojo,indice=0;
   //SE TRATA LA IMAGEN CON LA FORMULA
   //Se recorre segun ancho y largo
@@ -201,6 +206,72 @@ unsigned char* rgbToGrayScale(unsigned char* array, bmpInfoHeader bInfoHeader){
 		  }
 	}
   return array;
+}
+
+void* rgbToGrayScaleByRow(void* structura){
+  threadData* new_structura=(threadData*)structura;
+  //int numBarr=new_structura->barrierc;
+  pthread_barrier_wait(&mybarrier);
+  int i,j,y,azul,verde,rojo,indice;
+  //SE TRATA LA IMAGEN CON LA FORMULA
+  int rowInicial=new_structura->filaInicial;
+  int rowFinal=new_structura->filaFinal;
+
+  indice= new_structura->b.width * rowInicial;
+  for(i=rowInicial;i<=rowFinal;i++){
+    for(j=0; j < new_structura->b.width; j++){
+			     //los componentes alfa, r*0.3, g*0.59 ,b*0.11 de un pixel
+           //azul=new_structura->imagen[indice]*0.11;//azul
+           azul=new_structura->imagen[indice]*0.11;//azul
+           indice++;
+           verde=new_structura->imagen[indice]*0.59;//verde
+           indice++;
+           rojo=new_structura->imagen[indice]*0.3;//rojo
+           y=(azul+verde+rojo);
+           indice++;//estoy en alpha
+           new_structura->imagen[indice-3]=y;
+           new_structura->imagen[indice-2]=y;
+           new_structura->imagen[indice-1]=y;
+           indice++;//estoy en blue del proximo j
+	   }
+	}
+  return NULL;
+}
+
+void* rgbToGrayScaleByRow2(void* structura){
+
+  threadData* new_structura;
+  new_structura=(threadData*)structura;
+  //int numBarr=new_structura->barrierc;
+  pthread_barrier_wait(&mybarrier);
+  //int i,j,y,azul,verde,rojo,indice=0;
+  //SE TRATA LA IMAGEN CON LA FORMULA
+  int rowInicial=new_structura->filaInicial;
+  int rowFinal=new_structura->filaFinal;
+  printf("filaInicial: %d rowInicial: %d\n",new_structura->filaInicial,rowInicial);
+  printf("filaFinal: %d rowFinal: %d\n \n",new_structura->filaFinal,rowFinal);
+
+  /*
+  for(i=0;i<new_structura->b.height;i++){
+    for(j=0; j < new_structura->b.width; j++){
+			     //los componentes alfa, r*0.3, g*0.59 ,b*0.11 de un pixel
+           //azul=new_structura->imagen[indice]*0.11;//azul
+           //printf("indice:%d \n",indice);
+           azul=new_structura->imagen[indice]*0.11;//azul
+           indice++;
+           verde=new_structura->imagen[indice]*0.59;//verde
+           indice++;
+           rojo=new_structura->imagen[indice]*0.3;//rojo
+           y=(azul+verde+rojo);
+           indice++;//estoy en alpha
+           new_structura->imagen[indice-3]=y;
+           new_structura->imagen[indice-2]=y;
+           new_structura->imagen[indice-1]=y;
+           indice++;//estoy en blue del proximo j
+	   }
+	}
+  */
+  return NULL;
 }
 
 
@@ -251,6 +322,7 @@ unsigned char* binarizeImage(unsigned char* array, bmpInfoHeader bInfoHeader,int
 char* nearlyBlack(unsigned char* array, bmpInfoHeader bInfoHeader,int umbralPorcentaje){
   int i,j,prom,azul,verde,rojo,indice=0;
   float negro,blanco;
+  float newUmbral= umbralPorcentaje;
   negro=0;
   blanco=0;
   //Se recorre segun ancho y largo
@@ -272,10 +344,12 @@ char* nearlyBlack(unsigned char* array, bmpInfoHeader bInfoHeader,int umbralPorc
            indice++;//estoy en blue del proximo j
 		  }
 	}
-  if((negro/(negro+blanco))>=(float)(umbralPorcentaje/100)){
-      return "yes";
+  if((negro/(negro+blanco))>=(newUmbral/100)){
+      //printf("%f >?< %f\n",(negro/(negro+blanco)),(newUmbral/100));
+      return("yes");
   }
   else{
-    return "no";
+    //printf("%f >?< %f\n",(negro/(negro+blanco)),(newUmbral/100));
+    return("no");
   }
 }

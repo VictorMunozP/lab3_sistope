@@ -1,7 +1,11 @@
-#include<stdint.h>
+#include <stdint.h>
+#include <pthread.h>
 
 #ifndef structs
 #define structs
+
+
+pthread_barrier_t mybarrier;
 
 typedef struct bmpFileHeader
 {
@@ -27,5 +31,13 @@ typedef struct bmpInfoHeader
   uint32_t imxtcolors;      /* Colores importantes. 0 si son todos */
 } bmpInfoHeader;
 
+typedef struct threads{
+  unsigned char* imagen;
+  bmpInfoHeader b;
+  int filaInicial;
+  int filaFinal;
+  int barrierc;
+
+} threadData;
 
 #endif
